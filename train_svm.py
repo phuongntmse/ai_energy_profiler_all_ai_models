@@ -1,6 +1,5 @@
 import os
 import warnings
-from extract_features import extract_features
 from sklearn.metrics import classification_report
 import joblib
 import pandas as pd
@@ -9,15 +8,15 @@ from sklearn.preprocessing import StandardScaler
 from sklearn.svm import SVC
 from sklearn.metrics import classification_report, accuracy_score
 import argparse
-from my_config import *
+from config.my_config import *
 from common_function import *
 
 warnings.simplefilter("ignore", category=RuntimeWarning)
 
 # Argument Parser
 parser = argparse.ArgumentParser(description="Train SVM models for workload classification")
-parser.add_argument("--kernel", nargs="+", default='rbf', help="SVM kernel types")
-parser.add_argument("--C", nargs="+", type=float, default=10, help="SVM regularization parameters")
+parser.add_argument("--kernel", default='rbf', help="SVM kernel types")
+parser.add_argument("--C", type=int, default=10, help="SVM regularization parameters")
 parser.add_argument("--gamma", default='scale', help="SVM gamma parameter")
 args = parser.parse_args()
 l_kernel = args.kernel
@@ -72,6 +71,6 @@ for group_name, selected_columns in FEATURE_GROUPS.items():
 		print("Classification Report:\n", classification_report(y_test, y_pred, zero_division=0))
 		
 		os.makedirs(MODEL_DIR, exist_ok=True)
-		joblib.dump(svm_model, f"{MODEL_DIR}/model_{model_type}_{group_name}_{l_kernel}_{l_gamma}_{l_gamma}_{HW_INFRAS_FOR_TRAINING_DATA}.pkl")
-		joblib.dump(scaler, f"{MODEL_DIR}/scaler_{model_type}_{group_name}_{l_kernel}_{l_gamma}_{l_gamma}_{HW_INFRAS_FOR_TRAINING_DATA}.pkl")
-		joblib.dump(list(df_X.columns), f"{MODEL_DIR}/metrics_{model_type}_{group_name}_{l_kernel}_{l_gamma}_{l_gamma}_{HW_INFRAS_FOR_TRAINING_DATA}.pkl")
+		joblib.dump(svm_model, f"{MODEL_DIR}/model_{model_type}_{group_name}_{l_kernel}_{l_c}_{l_gamma}_{HW_INFRAS_FOR_TRAINING_DATA}.pkl")
+		joblib.dump(scaler, f"{MODEL_DIR}/scaler_{model_type}_{group_name}_{l_kernel}_{l_c}_{l_gamma}_{HW_INFRAS_FOR_TRAINING_DATA}.pkl")
+		joblib.dump(list(df_X.columns), f"{MODEL_DIR}/metrics_{model_type}_{group_name}_{l_kernel}_{l_c}_{l_gamma}_{HW_INFRAS_FOR_TRAINING_DATA}.pkl")

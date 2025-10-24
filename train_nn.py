@@ -1,4 +1,3 @@
-# Required Libraries
 import os
 import warnings
 import pandas as pd
@@ -12,17 +11,16 @@ from tensorflow.keras.utils import to_categorical
 from tensorflow.keras.callbacks import EarlyStopping
 import joblib
 import argparse
-from my_config import *
+from config.my_config import *
 from common_function import *
-from extract_features import *
 
 warnings.simplefilter("ignore", category=RuntimeWarning)
 
 # Argument Parser
 parser = argparse.ArgumentParser(description="Train NN models for workload classification")
-parser.add_argument("--layers", nargs="+", type=int, default=2, help="Number of layers")
-parser.add_argument("--nodes", nargs="+", type=int, default=32, help="Number of nodes per layer")
-parser.add_argument("--dropout", nargs="+", type=float, default=0.3, help="Dropout rate")
+parser.add_argument("--layers", type=int, default=2, help="Number of layers")
+parser.add_argument("--nodes", type=int, default=32, help="Number of nodes per layer")
+parser.add_argument("--dropout", type=float, default=0.3, help="Dropout rate")
 parser.add_argument("--activation", default='relu', help="Hidden layer activation function")
 parser.add_argument("--output_activation", default='softmax', help="Output layer activation function")
 args = parser.parse_args()
@@ -111,7 +109,7 @@ for group_name, selected_columns in FEATURE_GROUPS.items():
 
 		# Save model and scaler
 		os.makedirs(MODEL_DIR, exist_ok=True)
-		model.save(f"{MODEL_DIR}/model_{model_type}_{group_name}_{l_layersl_layers}_{l_nodes}_{l_dropout}_{l_activation}_{l_output_activation}_{HW_INFRAS_FOR_TRAINING_DATA}.keras")
+		model.save(f"{MODEL_DIR}/model_{model_type}_{group_name}_{l_layers}_{l_nodes}_{l_dropout}_{l_activation}_{l_output_activation}_{HW_INFRAS_FOR_TRAINING_DATA}.keras")
 		joblib.dump(scaler, f"{MODEL_DIR}/scaler_{model_type}_{group_name}_{l_layers}_{l_nodes}_{l_dropout}_{l_activation}_{l_output_activation}_{HW_INFRAS_FOR_TRAINING_DATA}.pkl")
 		joblib.dump(list(X.columns), f"{MODEL_DIR}/metrics_{model_type}_{group_name}_{l_layers}_{l_nodes}_{l_dropout}_{l_activation}_{l_output_activation}_{HW_INFRAS_FOR_TRAINING_DATA}.pkl")
 		joblib.dump(label_encoder, f"{MODEL_DIR}/label_encoder_{model_type}_{group_name}_{l_layers}_{l_nodes}_{l_dropout}_{l_activation}_{l_output_activation}_{HW_INFRAS_FOR_TRAINING_DATA}.pkl")

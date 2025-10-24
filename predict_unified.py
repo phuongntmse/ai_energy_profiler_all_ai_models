@@ -4,12 +4,15 @@ import pandas as pd
 import joblib
 import numpy as np
 from tensorflow.keras.models import load_model
-from extract_features import extract_features
 from config.my_config import *
+from common_function import *
 import warnings
 import itertools
 
 warnings.simplefilter("ignore", category=RuntimeWarning)
+
+# Initialize list to collect results
+evaluation_results = []
 
 for model_type in MODEL_TYPES:
 	print(f"\n===== Running predictions for model type: {model_type.upper()} =====")
@@ -29,11 +32,21 @@ for model_type in MODEL_TYPES:
 		for test_name, test_info in TESTING_OPTIONS.items():			
 			print(f"\nTesting with {test_name}")
 
+			correct_count = 0
+			wrong_count = 0
+			total_files = 0
+
 			TESTING_DATA_PATH = test_info["path"]
 			prefix = test_info["prefix"]
+			# For storing results
+			results = []
+			results_summary= []
+
 			for file_name in os.listdir(TESTING_DATA_PATH):
 				if not file_name.endswith(".csv"):
 					continue
+
+				total_files += 1
 
 				file_path = os.path.join(TESTING_DATA_PATH, file_name)
 				df = pd.read_csv(file_path)
@@ -57,9 +70,9 @@ for model_type in MODEL_TYPES:
 						# Model loading
 						if model_type == "svm":							
 							l_kernel, l_C = combo
-							model_path = f"{MODEL_DIR}/model_{model_type}_{group}_{l_kernel}_{SVM_GAMMA}_{l_C}_{HW_INFRAS_FOR_TRAINING_DATA}.pkl"
-							scaler_path = f"{MODEL_DIR}/scaler_{model_type}_{group}_{l_kernel}_{SVM_GAMMA}_{l_C}_{HW_INFRAS_FOR_TRAINING_DATA}.pkl"
-							metrics_path = f"{MODEL_DIR}/metrics_{model_type}_{group}_{l_kernel}_{SVM_GAMMA}_{l_C}_{HW_INFRAS_FOR_TRAINING_DATA}.pkl"
+							model_path = f"{MODEL_DIR}/model_{model_type}_{group}_{l_kernel}_{l_C}_{SVM_GAMMA}_{HW_INFRAS_FOR_TRAINING_DATA}.pkl"
+							scaler_path = f"{MODEL_DIR}/scaler_{model_type}_{group}_{l_kernel}_{l_C}_{SVM_GAMMA}_{HW_INFRAS_FOR_TRAINING_DATA}.pkl"
+							metrics_path = f"{MODEL_DIR}/metrics_{model_type}_{group}_{l_kernel}_{l_C}_{SVM_GAMMA}_{HW_INFRAS_FOR_TRAINING_DATA}.pkl"
 							model = joblib.load(model_path)
 							scaler = joblib.load(scaler_path)
 							expected_cols = joblib.load(metrics_path)
@@ -141,11 +154,34 @@ for model_type in MODEL_TYPES:
 					"second_confidence": round(float(top2_conf), 4)
 				})
 
+				# Get ground-truth from filename
+				true_label = get_label(file_name)
+				if true_label == "N/A":
+					continue
+
+				if top1_label == true_label:
+					correct_count += 1
+				else:
+					wrong_count += 1
+
 			# Save outputs
 			results_df = pd.DataFrame(results)
-			results_df.to_csv(f"{RESULT_DIR}/{RESULT_PATH}", index=False)
+			results_df.to_csv(f"{RESULT_DIR}/{prefix}_{model_type}_{'_'.join(map(str, combo))}", index=False)
 
 			results2_df = pd.DataFrame(results_summary)
-			results2_df.to_csv(f"{RESULT_DIR}/full_{RESULT_PATH}", index=False)
+			results2_df.to_csv(f"{RESULT_DIR}/full_{prefix}_{model_type}_{'_'.join(map(str, combo))}", index=False)
 
-			print(f"\n Prediction complete. Results saved to {RESULT_PATH} and full_{RESULT_PATH}.")
+			accuracy = (correct_count / total_files) * 100 if total_files > 0 else 0
+			# Record the results
+			evaluation_results.append({
+				"model_type_hyperparam": f"{model_type}_{'_'.join(map(str, combo))}",
+				"test_option": test_name,
+				"correct_count": correct_count,
+				"wrong_count": wrong_count,
+				"accuracy": round(accuracy, 4)
+			})
+
+# Save all results to CSV
+eval_df = pd.DataFrame(evaluation_results)
+eval_df.to_csv(os.path.join(RESULT_DIR, "evaluation_summary.csv"), index=False)
+print("\nEvaluation complete. Results saved to evaluation_summary.csv")

@@ -21,7 +21,6 @@ HW_INFRAS_FOR_TRAINING_DATA = "grid5000_gros"  # local-server or Grid5000
 
 # Training and feature configuration
 TRAINING_DATA_CONFIG = "./config/training_data_setup.csv"
-FEATURE_CONFIG = "./config/feature_config.csv"
 
 FEATURE_GROUPS = {
 	"CPU": ["cpu_all_util_percent", "cpu_frequency_ghz"],
@@ -56,3 +55,6 @@ TESTING_OPTIONS = {
 		"prefix": "prediction_results_unseenbm"
 	}
 }
+
+# Paths for logs
+LOG_DIR = "./training_logs"

@@ -3,11 +3,10 @@ import joblib
 import pandas as pd
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.preprocessing import StandardScaler
-from extract_features import extract_features
 from sklearn.model_selection import train_test_split
 import warnings
 import argparse
-from my_config import *
+from config.my_config import *
 from common_function import *
 
 warnings.simplefilter("ignore", category=RuntimeWarning)
@@ -56,9 +55,9 @@ for group_name, selected_columns in FEATURE_GROUPS.items():
 		model = RandomForestClassifier(n_estimators=n_trees, random_state=42)
 		model.fit(X_train, y_train)
 
-		joblib.dump(model, f"{MODEL_DIR}/model_{model_type}_{group}_{RF_NO_DECISION_TREES}_{HW_INFRAS_FOR_TRAINING_DATA}.pkl")
-		joblib.dump(scaler, f"{MODEL_DIR}/scaler_{model_type}_{group}_{RF_NO_DECISION_TREES}_{HW_INFRAS_FOR_TRAINING_DATA}.pkl")
-		joblib.dump(list(df_X.columns), f"{MODEL_DIR}/metrics_{model_type}_{group}_{RF_NO_DECISION_TREES}_{HW_INFRAS_FOR_TRAINING_DATA}.pkl")
+		joblib.dump(model, f"{MODEL_DIR}/model_{model_type}_{group_name}_{n_trees}_{HW_INFRAS_FOR_TRAINING_DATA}.pkl")
+		joblib.dump(scaler, f"{MODEL_DIR}/scaler_{model_type}_{group_name}_{n_trees}_{HW_INFRAS_FOR_TRAINING_DATA}.pkl")
+		joblib.dump(list(df_X.columns), f"{MODEL_DIR}/metrics_{model_type}_{group_name}_{n_trees}_{HW_INFRAS_FOR_TRAINING_DATA}.pkl")
 
 		# Evaluate model
 		accuracy = model.score(X_test, y_test)

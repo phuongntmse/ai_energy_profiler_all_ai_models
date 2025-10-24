@@ -1,0 +1,5 @@
+Model CPU trained successfully! Accuracy: 1.00
+Model MEMORY trained successfully! Accuracy: 1.00
+Model DISK_IO trained successfully! Accuracy: 1.00
+Model ENERGY trained successfully! Accuracy: 0.99
+Model ALL trained successfully! Accuracy: 1.00
